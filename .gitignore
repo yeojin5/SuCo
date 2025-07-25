@@ -1,2 +1,5 @@
 *.bin
 scimi
+/index
+/result
+/dataset

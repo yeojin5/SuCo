@@ -1,6 +1,6 @@
 #include "evaluate.h"
 
-void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensionality, int ** &queryknn_results, long int ** &gt, int query_size) {
+void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensionality, int ** &queryknn_results, int ** &gt, int query_size) {
     int ks[6] = {1, 10, 20, 30, 40, 50};
     
     for (int k_index = 0; k_index < sizeof(ks) / sizeof(ks[0]); k_index++) {

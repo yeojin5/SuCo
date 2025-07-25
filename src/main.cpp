@@ -141,7 +141,9 @@ int main (int argc, char **argv)
     }
 
     // Load data
-    dataset_size = dataset_size - 100;
+    // - 100 -> 0
+    // dataset_size = dataset_size - 100;
+    dataset_size = dataset_size;
     float ** dataset;
     load_data(dataset, dataset_path, dataset_size, data_dimensionality);
 
@@ -150,7 +152,7 @@ int main (int argc, char **argv)
     load_query(querypoints, query_path, query_size, data_dimensionality);
 
     // Load groundtruth
-    long int ** gt;
+    int ** gt;
     load_groundtruth(gt, groundtruth_path, query_size, k_size);
 
     // preprocess dataset to fit the data format required by mlpack
