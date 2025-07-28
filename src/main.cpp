@@ -196,7 +196,9 @@ int main (int argc, char **argv)
 
     int number_of_threads = get_nprocs_conf() / 2;
 
-    ann_query(dataset, queryknn_results, dataset_size, data_dimensionality, query_size, k_size, querypoints, indexes, centroids_list, subspace_num, subspace_dimensionality, kmeans_num_centroid, kmeans_dim, collision_num, candidate_num, number_of_threads, query_time);
+    vector<vector<vector<int>>> subspace_candidates;
+
+    ann_query(dataset, queryknn_results, dataset_size, data_dimensionality, query_size, k_size, querypoints, indexes, centroids_list, subspace_num, subspace_dimensionality, kmeans_num_centroid, kmeans_dim, collision_num, candidate_num, number_of_threads, query_time, subspace_candidates);
     
     if (load_index == 0) {
         cout << "The indexing time is: " << index_time / 1000.0 << "ms." << endl;
@@ -206,5 +208,8 @@ int main (int argc, char **argv)
     
     // Evaluate the query accuracy (recall and ratio)
     recall_and_ratio(dataset, querypoints, data_dimensionality, queryknn_results, gt, query_size);
+
+    // Evaluate subspace accuracy and contribution
+    subspace_accuracy_and_contribution(gt, queryknn_results, subspace_candidates, query_size, k_size, subspace_num);
 
 }

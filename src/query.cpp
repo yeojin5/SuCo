@@ -1,14 +1,18 @@
 #include "query.h"
 
-void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_size, int data_dimensionality, int query_size, int k_size, float ** &querypoints, vector<unordered_map<pair<int, int>, vector<int>, hash_pair>> &indexes, float * &centroids_list, int subspace_num, int subspace_dimensionality, int kmeans_num_centroid, int kmeans_dim, int collision_num, int candidate_num, int number_of_threads, long int &query_time) {
+void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_size, int data_dimensionality, int query_size, int k_size, float ** &querypoints, vector<unordered_map<pair<int, int>, vector<int>, hash_pair>> &indexes, float * &centroids_list, int subspace_num, int subspace_dimensionality, int kmeans_num_centroid, int kmeans_dim, int collision_num, int candidate_num, int number_of_threads, long int &query_time, vector<vector<vector<int>>> &subspace_candidates) {
     struct timeval start_query, end_query;
     
     progress_display pd_query(query_size);
+
+    subspace_candidates.resize(query_size);
 
     vector<int> collision_count(dataset_size, 0);
     
     for (int i = 0; i < query_size; i++) {
         gettimeofday(&start_query, NULL);
+
+        subspace_candidates[i].resize(subspace_num);
 
         for (int j = 0; j < subspace_num; j++) {
             // first half dist
@@ -38,13 +42,24 @@ void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_siz
             vector<pair<int, int>> retrieved_cell;
             dynamic_activate(indexes, retrieved_cell, first_half_dists, first_half_idx, second_half_dists, second_half_idx, collision_num, kmeans_num_centroid, j);
 
-            // count collision
-            #pragma omp parallel for num_threads(number_of_threads)
+            // count collision and store subspace candidates
+            vector<int>& current_subspace_candidates = subspace_candidates[i][j];
             for (int z = 0; z < retrieved_cell.size(); z++) {
                 auto iterator = indexes[j].find(retrieved_cell[z]);
-                for (int t = 0; t < iterator->second.size(); t++) {
-                    collision_count[iterator->second[t]]++;
+                if (iterator != indexes[j].end()) {
+                    current_subspace_candidates.insert(current_subspace_candidates.end(), iterator->second.begin(), iterator->second.end());
                 }
+            }
+
+            // Remove duplicates
+            sort(current_subspace_candidates.begin(), current_subspace_candidates.end());
+            current_subspace_candidates.erase(unique(current_subspace_candidates.begin(), current_subspace_candidates.end()), current_subspace_candidates.end());
+
+            // Update collision_count using the unique candidates
+            #pragma omp parallel for num_threads(number_of_threads)
+            for (int z = 0; z < current_subspace_candidates.size(); z++) {
+                #pragma omp atomic
+                collision_count[current_subspace_candidates[z]]++;
             }
         }
 

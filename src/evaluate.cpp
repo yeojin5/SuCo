@@ -1,4 +1,5 @@
 #include "evaluate.h"
+#include <unordered_set>
 
 void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensionality, int ** &queryknn_results, int ** &gt, int query_size) {
     int ks[6] = {1, 10, 20, 30, 40, 50};
@@ -42,5 +43,51 @@ void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensi
         float overall_ratio = ratio / (query_size * ks[k_index]);
 
         cout << "When k = " << ks[k_index] << ", (recall, ratio) = (" << recall_value << ", " << overall_ratio << ")" << endl;
+    }
+}
+
+void subspace_accuracy_and_contribution(int ** &gt, int ** &queryknn_results, const vector<vector<vector<int>>> &subspace_candidates, int query_size, int k_size, int subspace_num) {
+    cout << "k,subspace,accuracy,contribution" << endl;
+    int ks[6] = {1, 10, 20, 30, 40, 50};
+
+    for (int k_index = 0; k_index < sizeof(ks) / sizeof(ks[0]); k_index++) {
+        int current_k = ks[k_index];
+
+        vector<double> subspace_accuracy(subspace_num, 0.0);
+        vector<double> subspace_contribution(subspace_num, 0.0);
+
+        for (int i = 0; i < query_size; ++i) {
+            unordered_set<int> ground_truth_set(gt[i], gt[i] + current_k);
+            unordered_set<int> final_results_set(queryknn_results[i], queryknn_results[i] + current_k);
+
+            for (int j = 0; j < subspace_num; ++j) {
+                int accuracy_count = 0;
+                int contribution_count = 0;
+                
+                if (i < subspace_candidates.size() && j < subspace_candidates[i].size()) {
+                    const auto& candidates = subspace_candidates[i][j];
+                    unordered_set<int> candidate_set(candidates.begin(), candidates.end());
+
+                    for (int candidate_id : candidate_set) {
+                        if (ground_truth_set.count(candidate_id)) {
+                            accuracy_count++;
+                        }
+                        if (final_results_set.count(candidate_id)) {
+                            contribution_count++;
+                        }
+                    }
+                    if (!ground_truth_set.empty()) {
+                        subspace_accuracy[j] += (double)accuracy_count / ground_truth_set.size();
+                    }
+                    if (!candidate_set.empty()) {
+                        subspace_contribution[j] += (double)contribution_count / candidate_set.size();
+                    }
+                }
+            }
+        }
+
+        for (int j = 0; j < subspace_num; ++j) {
+            cout << current_k << "," << j << "," << (subspace_accuracy[j] / query_size) * 100 << "," << (subspace_contribution[j] / query_size) * 100 << endl;
+        }
     }
 }

@@ -4,7 +4,7 @@
 
 DATASET="openai1m"
 DATA_DIM=1536
-SUBSPACE_NUM=12
+SUBSPACE_NUM=8
 SUBSPACE_DIM=$((DATA_DIM/SUBSPACE_NUM))
 ALPHA=0.05 # candidate ratio
 BETA=0.005 # collision ratio
@@ -24,7 +24,7 @@ K_SIZE=100
 	--collision-ratio $BETA \
 	--kmeans-num-centroid 50 \
 	--kmeans-num-iters 2 \
-	--index-path ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.bin #\
-	# > ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.txt
+	--index-path ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.bin \
+	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.txt
 echo "save [${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.txt]"
 
