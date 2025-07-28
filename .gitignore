@@ -1,5 +1,6 @@
 *.bin
 scimi
+suco
 /index
 /result
 /dataset
