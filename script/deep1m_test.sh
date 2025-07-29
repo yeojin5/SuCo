@@ -6,14 +6,14 @@ DATASET="deep1m"
 DATA_DIM=256
 SUBSPACE_NUM=8
 SUBSPACE_DIM=$((DATA_DIM/SUBSPACE_NUM))
-ALPHA=0.05 # candidate ratio
-BETA=0.005 # collision ratio
-K_SIZE=100
+K_SIZE=$1
+ALPHA=$2 # candidate ratio
+BETA=$3 # collision ratio
 
 #gdb --args 
 ./suco  --dataset-path ./dataset/${DATASET}/${DATASET}_base.fbin \
 	--query-path ./dataset/${DATASET}/${DATASET}_query.fbin \
-	--groundtruth-path ./dataset/${DATASET}/${DATASET}_gt_k${K_SIZE} \
+	--groundtruth-path ./dataset/${DATASET}/${DATASET}_gt_K${K_SIZE}.fbin \
 	--dataset-size 1000000 \
 	--query-size 1000 \
 	--k-size ${K_SIZE} \
@@ -24,7 +24,7 @@ K_SIZE=100
 	--collision-ratio $BETA \
 	--kmeans-num-centroid 50 \
 	--kmeans-num-iters 2 \
-	--index-path ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.bin \
-	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.txt
-echo "save [${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}.txt]"
-
+	--index-path ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin \
+	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.txt
+	#--load-index ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin
+echo "save [${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.txt]"

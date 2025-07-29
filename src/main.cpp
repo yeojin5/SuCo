@@ -152,7 +152,7 @@ int main (int argc, char **argv)
     load_query(querypoints, query_path, query_size, data_dimensionality);
 
     // Load groundtruth
-    int ** gt;
+    long int ** gt;
     load_groundtruth(gt, groundtruth_path, query_size, k_size);
 
     // preprocess dataset to fit the data format required by mlpack

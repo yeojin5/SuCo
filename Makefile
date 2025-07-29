@@ -6,10 +6,15 @@ SOURCE=$(wildcard ./src/*.cpp)
 
 suco:$(SOURCE)
 	rm -rf suco
-	g++ $(SOURCE) -o suco $(SETTING_RELEASE)
+	g++ $(filter-out ./src/ground_truth.cpp, $(SOURCE)) -o suco $(SETTING_RELEASE)
+
+ground_truth: ./src/ground_truth.cpp ./src/preprocess.cpp ./src/dist_calculation.cpp
+	rm -rf ground_truth
+	g++ ./src/ground_truth.cpp ./src/preprocess.cpp ./src/dist_calculation.cpp -o ground_truth $(SETTING_RELEASE)
+
 debug:$(SOURCE)
 	rm -rf suco
-	g++ $(SOURCE) -o suco $(SETTING_DEBUG)
+	g++ $(filter-out ./src/ground_truth.cpp, $(SOURCE)) -o suco $(SETTING_DEBUG)
 
 clean:
-	rm -rf suco
+	rm -rf suco ground_truth

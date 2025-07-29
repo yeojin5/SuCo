@@ -42,7 +42,7 @@ void load_query(float ** &querypoints, char * query_path, int query_size, int da
     fclose(ifile_query);
 }
 
-void load_groundtruth(int ** &gt, char * groundtruth_path, int query_size, int k_size) {
+void load_groundtruth(long int ** &gt, char * groundtruth_path, int query_size, int k_size) {
     cout << ">>> Loading groundtruth from: " << groundtruth_path << endl;
     FILE *ifile_groundtruth;
     ifile_groundtruth = fopen(groundtruth_path,"rb");
@@ -53,11 +53,11 @@ void load_groundtruth(int ** &gt, char * groundtruth_path, int query_size, int k
 
     int fread_return;
 
-    gt = new int*[query_size];
+    gt = new long int*[query_size];
     for (int i = 0; i < query_size; i++)
     {
-        gt[i] = new int[k_size];
-        fread_return = fread(gt[i], sizeof(int), k_size, ifile_groundtruth);                
+        gt[i] = new long int[k_size];
+        fread_return = fread(gt[i], sizeof(long int), k_size, ifile_groundtruth);                
     }
     fclose(ifile_groundtruth);
 }
