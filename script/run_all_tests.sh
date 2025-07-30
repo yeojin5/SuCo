@@ -16,7 +16,7 @@ BETA=$3
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Run the test scripts with arguments
-bash "$SCRIPT_DIR/deep1m_test.sh" $K_SIZE $ALPHA $BETA
-bash "$SCRIPT_DIR/gist1m_test.sh" $K_SIZE $ALPHA $BETA
-bash "$SCRIPT_DIR/openai1m_test.sh" $K_SIZE $ALPHA $BETA
+#bash "$SCRIPT_DIR/deep1m_test.sh" $K_SIZE $ALPHA $BETA
+#bash "$SCRIPT_DIR/gist1m_test.sh" $K_SIZE $ALPHA $BETA
+#bash "$SCRIPT_DIR/openai1m_test.sh" $K_SIZE $ALPHA $BETA
 bash "$SCRIPT_DIR/sift10m_test.sh" $K_SIZE $ALPHA $BETA

@@ -1,5 +1,8 @@
 #include "evaluate.h"
 #include <unordered_set>
+#include <unordered_map>
+#include <vector>
+#include <algorithm>
 
 void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensionality, int ** &queryknn_results, long int ** &gt, int query_size) {
     int ks[6] = {1, 10, 20, 30, 40, 50};
@@ -123,7 +126,7 @@ void subspace_accuracy_and_contribution(
         // 출력
         for (int j = 0; j < subspace_num; ++j) {
             double acc = subspace_accuracy[j] / query_size * 100.0;
-            double contrib = subspace_contribution[j] / query_size * 100.0;
+            double contrib = (subspace_contribution[j] / query_size / current_k) * 100.0;
             cout << current_k << "," << j << "," << acc << "," << contrib << endl;
         }
     }

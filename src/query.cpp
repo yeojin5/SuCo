@@ -1,11 +1,14 @@
 #include "query.h"
+#include <algorithm>
+#include <vector>
 
-void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_size, int data_dimensionality, int query_size, int k_size, float ** &querypoints, vector<unordered_map<pair<int, int>, vector<int>, hash_pair>> &indexes, float * &centroids_list, int subspace_num, int subspace_dimensionality, int kmeans_num_centroid, int kmeans_dim, int collision_num, int candidate_num, int number_of_threads, long int &query_time, vector<vector<vector<int>>> &subspace_candidates) {
+void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_size, int data_dimensionality, int query_size, int k_size, float ** &querypoints, vector<unordered_map<pair<int, int>, vector<int>, hash_pair>> &indexes, float * &centroids_list, int subspace_num, int subspace_dimensionality, int kmeans_num_centroid, int kmeans_dim, int collision_num, int candidate_num, int number_of_threads, long int &query_time, vector<vector<vector<int>>> &subspace_candidates, vector<vector<vector<int>>> &subspace_scores, const vector<int>& excluded_subspaces) {
     struct timeval start_query, end_query;
     
     progress_display pd_query(query_size);
 
     subspace_candidates.resize(query_size);
+    subspace_scores.resize(query_size);
 
     vector<int> collision_count(dataset_size, 0);
     
@@ -13,8 +16,12 @@ void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_siz
         gettimeofday(&start_query, NULL);
 
         subspace_candidates[i].resize(subspace_num);
+        subspace_scores[i].resize(subspace_num);
 
         for (int j = 0; j < subspace_num; j++) {
+            if (find(excluded_subspaces.begin(), excluded_subspaces.end(), j) != excluded_subspaces.end()) {
+                continue;
+            }
             // first half dist
             vector<float> first_half_dists(kmeans_num_centroid);
             for (int z = 0; z < kmeans_num_centroid; z++) {
@@ -44,10 +51,12 @@ void ann_query(float ** &dataset, int ** &queryknn_results, long int dataset_siz
 
             // count collision and store subspace candidates
             vector<int>& current_subspace_candidates = subspace_candidates[i][j];
+            vector<int>& current_subspace_scores = subspace_scores[i][j];
             for (int z = 0; z < retrieved_cell.size(); z++) {
                 auto iterator = indexes[j].find(retrieved_cell[z]);
                 if (iterator != indexes[j].end()) {
                     current_subspace_candidates.insert(current_subspace_candidates.end(), iterator->second.begin(), iterator->second.end());
+                    current_subspace_scores.insert(current_subspace_scores.end(), iterator->second.size(), 1);
                 }
             }
 
