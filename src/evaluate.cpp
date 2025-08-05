@@ -5,7 +5,7 @@
 #include <algorithm>
 
 void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensionality, int ** &queryknn_results, long int ** &gt, int query_size) {
-    int ks[6] = {1, 10, 20, 30, 40, 50};
+    int ks[1] = {10};
     
     for (int k_index = 0; k_index < sizeof(ks) / sizeof(ks[0]); k_index++) {
         int retrieved_data_num = 0;
@@ -15,11 +15,12 @@ void recall_and_ratio(float ** &dataset, float ** &querypoints, int data_dimensi
             for (int j = 0; j < ks[k_index]; j++)
             {
                 for (int z = 0; z < ks[k_index]; z++) {
-			// std::cout << "query_result["<<i<<"]["<<j <<"]"<< ", gt[" <<i<< "][" <<z<< "]" << gt[i][z] << std::endl;  
                     if (queryknn_results[i][j] == gt[i][z]) {
+		    //	std::cout << "query_result["<<i<<"]["<<j <<"]"<< ", gt[" <<i<< "][" <<z<< "]" << gt[i][z] << std::endl;  
                         retrieved_data_num++;
                         break;
                     }
+		    // std::cout <<  "retrieved_data_num: " << retrieved_data_num << std::endl;
                 }
             }
         }
@@ -60,7 +61,7 @@ void subspace_accuracy_and_contribution(
     int subspace_num
 ) {
     cout << "k,subspace,accuracy,contribution" << endl;
-    int ks[6] = {1, 10, 20, 30, 40, 50};
+    int ks[1] = {10};
 
     for (int k_index = 0; k_index < sizeof(ks) / sizeof(ks[0]); k_index++) {
         int current_k = ks[k_index];
@@ -116,7 +117,7 @@ void subspace_accuracy_and_contribution(
                             accuracy_count++;
                         }
                     }
-                    if (!ground_truth_set.empty()) {
+                    if (ground_truth_set.size() > 0) {
                         subspace_accuracy[j] += (double)accuracy_count / ground_truth_set.size();
                     }
                 }
@@ -125,10 +126,60 @@ void subspace_accuracy_and_contribution(
 
         // 출력
         for (int j = 0; j < subspace_num; ++j) {
-            double acc = subspace_accuracy[j] / query_size * 100.0;
+            double acc = (subspace_accuracy[j] / query_size) * 100.0;
             double contrib = (subspace_contribution[j] / query_size / current_k) * 100.0;
             cout << current_k << "," << j << "," << acc << "," << contrib << endl;
         }
     }
+}
+
+void evaluate_chosen_subspace_recall(
+    long int** &gt, // Ground truth
+    const std::vector<std::vector<std::vector<int>>>& subspace_candidates, // [query_id][subspace_id][candidates]
+    const std::vector<std::vector<int>>& chosen_subspaces_by_query, // [query_id][chosen_subspace_ids]
+    int query_size,
+    int k,
+    int num_subspaces
+) {
+    std::vector<double> subspace_recall_sum(num_subspaces, 0.0);
+    std::vector<int> subspace_selection_count(num_subspaces, 0);
+
+    for (int i = 0; i < query_size; ++i) {
+        const auto& chosen_subspaces = chosen_subspaces_by_query[i];
+        std::unordered_set<long int> ground_truth_set(gt[i], gt[i] + k);
+
+        for (int chosen_subspace_id : chosen_subspaces) {
+            if (chosen_subspace_id < 0 || chosen_subspace_id >= num_subspaces) {
+                cerr << "Warning: Query " << i << " has invalid chosen_subspace id " << chosen_subspace_id << endl;
+                continue;
+            }
+
+            const auto& candidates = subspace_candidates[i][chosen_subspace_id];
+            
+            int hit_count = 0;
+            for (int candidate_id : candidates) {
+                if (ground_truth_set.count(candidate_id)) {
+                    hit_count++;
+                }
+            }
+
+            double recall = (ground_truth_set.size() > 0) ? static_cast<double>(hit_count) / ground_truth_set.size() : 0.0;
+
+            subspace_recall_sum[chosen_subspace_id] += recall;
+            subspace_selection_count[chosen_subspace_id]++;
+        }
+    }
+
+    cout << "\n--- Chosen Subspace Recall Evaluation ---" << endl;
+    cout << "Subspace,AvgRecall,Selections" << endl;
+    for (int j = 0; j < num_subspaces; ++j) {
+        if (subspace_selection_count[j] > 0) {
+            double avg_recall = subspace_recall_sum[j] / subspace_selection_count[j];
+            cout << j << "," << avg_recall << "," << subspace_selection_count[j] << endl;
+        } else {
+            cout << j << ",0.0," << 0 << endl;
+        }
+    }
+    cout << "-----------------------------------------" << endl;
 }
 

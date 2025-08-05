@@ -16,4 +16,13 @@ void subspace_accuracy_and_contribution(
     int subspace_num
 );
 
+void evaluate_chosen_subspace_recall(
+    long int** &gt, // Ground truth
+    const std::vector<std::vector<std::vector<int>>>& subspace_candidates, // [query_id][subspace_id][candidates]
+    const std::vector<std::vector<int>>& chosen_subspaces_by_query, // [query_id][chosen_subspace_ids]
+    int query_size,
+    int k,
+    int num_subspaces
+);
+
 using namespace std;

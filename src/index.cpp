@@ -63,6 +63,10 @@ void gen_indexes(vector<arma::mat> data_list, vector<unordered_map<pair<int, int
 
         kmeans_second_half.Cluster(data_list[subspace_index * 2 + 1], kmeans_num_centroid, assignments_second_half, centroids_second_half);
 
+        arma::vec mean_centroid_second_half = arma::mean(data_list[subspace_index * 2 + 1], 1);
+        //cout << "--- Mean Centroid for subspace " << subspace_index << " (second half) ---" << endl;
+        //mean_centroid_second_half.print();
+
         // offline index
         for (int i = 0; i < dataset_size; i++) {
             assignments_list[(subspace_index * 2 + 1) * dataset_size + i] = (float) assignments_second_half(i);

@@ -46,6 +46,7 @@ int main (int argc, char **argv)
 
     static int load_index=0;
     vector<int> excluded_subspaces;
+    int top_n_subspaces = subspace_num;
 
     // Parse input
     while (1)
@@ -67,6 +68,7 @@ int main (int argc, char **argv)
             {"kmeans-num-iters", required_argument, 0, 'n'},
             {"load-index", no_argument, 0, 'o'},
             {"exclude-subspaces", required_argument, 0, 'p'},
+            {"top-n-subspaces", required_argument, 0, 'q'},
             {NULL, 0, NULL, 0}
         };
 
@@ -112,9 +114,11 @@ int main (int argc, char **argv)
 
             case 'i':
             	subspace_dimensionality = atoi(optarg);
+                break;
 
             case 'j':
             	subspace_num = atoi(optarg);
+                break;
             
             case 'k':
                 candidate_ratio = atof(optarg);
@@ -145,6 +149,10 @@ int main (int argc, char **argv)
                         excluded_subspaces.push_back(std::stoi(item));
                     }
                 }
+                break;
+
+            case 'q':
+                top_n_subspaces = atoi(optarg);
                 break;
 
             default:
@@ -211,8 +219,9 @@ int main (int argc, char **argv)
 
     vector<vector<vector<int>>> subspace_candidates;
     vector<vector<vector<int>>> subspace_scores;
+    vector<vector<int>> chosen_subspaces_by_query;
 
-    ann_query(dataset, queryknn_results, dataset_size, data_dimensionality, query_size, k_size, querypoints, indexes, centroids_list, subspace_num, subspace_dimensionality, kmeans_num_centroid, kmeans_dim, collision_num, candidate_num, number_of_threads, query_time, subspace_candidates, subspace_scores, excluded_subspaces);
+    ann_query_method1(dataset, queryknn_results, dataset_size, data_dimensionality, query_size, k_size, querypoints, indexes, centroids_list, subspace_num, subspace_dimensionality, kmeans_num_centroid, kmeans_dim, collision_num, candidate_num, number_of_threads, query_time, subspace_candidates, subspace_scores, excluded_subspaces, top_n_subspaces, chosen_subspaces_by_query);
     
     if (load_index == 0) {
         cout << "The indexing time is: " << index_time / 1000.0 << "ms." << endl;
@@ -225,5 +234,8 @@ int main (int argc, char **argv)
 
     // Evaluate subspace accuracy and contribution
     subspace_accuracy_and_contribution(gt, queryknn_results, subspace_candidates, subspace_scores, query_size, k_size, subspace_num);
+
+    // Evaluate chosen subspace recall
+    evaluate_chosen_subspace_recall(gt, subspace_candidates, chosen_subspaces_by_query, query_size, k_size, subspace_num);
 
 }
