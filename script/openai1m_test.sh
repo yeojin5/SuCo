@@ -4,7 +4,7 @@
 
 DATASET="openai1m"
 DATA_DIM=1536
-SUBSPACE_NUM=24
+SUBSPACE_NUM=8
 SUBSPACE_DIM=$((DATA_DIM/SUBSPACE_NUM))
 K_SIZE=$1
 ALPHA=$2 # candidate ratio
@@ -28,6 +28,6 @@ TOPSUBSPACE=$4
 	--index-path ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin \
 	--load-index ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin \
 	--top-n-subspaces ${TOPSUBSPACE} \
-	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}_${TOPSUBSPACE}.txt
+	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}_simple_${TOPSUBSPACE}.txt
 	# --load-index ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin
 echo "save [${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.txt]"

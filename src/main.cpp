@@ -233,9 +233,9 @@ int main (int argc, char **argv)
     recall_and_ratio(dataset, querypoints, data_dimensionality, queryknn_results, gt, query_size);
 
     // Evaluate subspace accuracy and contribution
-    subspace_accuracy_and_contribution(gt, queryknn_results, subspace_candidates, subspace_scores, query_size, k_size, subspace_num);
+    //subspace_accuracy_and_contribution(gt, queryknn_results, subspace_candidates, subspace_scores, query_size, k_size, subspace_num);
 
     // Evaluate chosen subspace recall
-    evaluate_chosen_subspace_recall(gt, subspace_candidates, chosen_subspaces_by_query, query_size, k_size, subspace_num);
+    //evaluate_chosen_subspace_recall(gt, subspace_candidates, chosen_subspaces_by_query, query_size, k_size, subspace_num);
 
 }

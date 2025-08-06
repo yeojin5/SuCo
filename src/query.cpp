@@ -191,27 +191,14 @@ void ann_query_method1(float ** &dataset, int ** &queryknn_results, long int dat
         subspace_candidates[i].resize(subspace_num);
         subspace_scores[i].resize(subspace_num);
 
-        vector<pair<float, int>> subspace_distances;
-        for (int j = 0; j < subspace_num; j++) {
+        vector<int> selected_subspaces;
+        for (int j = 0; j < top_n_subspaces && j < subspace_num; j++) {
             if (find(excluded_subspaces.begin(), excluded_subspaces.end(), j) != excluded_subspaces.end()) {
                 continue;
             }
-            float min_dist = FLT_MAX;
-            for (int z = 0; z < kmeans_num_centroid; z++) {
-                float dist = euclidean_distance(&querypoints[i][j * subspace_dimensionality], &centroids_list[j * 2 * kmeans_num_centroid * kmeans_dim + z * kmeans_dim], kmeans_dim);
-                if (dist < min_dist) {
-                    min_dist = dist;
-                }
-            }
-            subspace_distances.push_back({min_dist, j});
+            selected_subspaces.push_back(j);
         }
 
-        sort(subspace_distances.begin(), subspace_distances.end());
-
-        vector<int> selected_subspaces;
-        for (int j = 0; j < top_n_subspaces && j < subspace_distances.size(); j++) {
-            selected_subspaces.push_back(subspace_distances[j].second);
-        }
         chosen_subspaces_by_query[i] = selected_subspaces;
 	//std::cout << "[selected subspace num] ";
 	//for (int j = 0; j < top_n_subspaces && j < subspace_distances.size(); j++){

@@ -9,6 +9,7 @@ SUBSPACE_DIM=$((DATA_DIM/SUBSPACE_NUM))
 K_SIZE=$1
 ALPHA=$2 # candidate ratio
 BETA=$3 # collision ratio
+TOPSUBSPACE=$4
 
 #gdb --args 
 ./suco  --dataset-path ./dataset/${DATASET}/${DATASET}_base.fbin \
@@ -25,6 +26,8 @@ BETA=$3 # collision ratio
 	--kmeans-num-centroid 50 \
 	--kmeans-num-iters 2 \
 	--index-path ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin \
-	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.txt
-	# --load-index ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin
+	--load-index ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin \
+	--top-n-subspaces ${TOPSUBSPACE} \
+	| tee ./result/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}_simple_${TOPSUBSPACE}.txt
+	# --load-index ./index/${DATASET}/${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.bin \
 echo "save [${DATASET}_${SUBSPACE_NUM}_${ALPHA}_${BETA}_K${K_SIZE}.txt]"
